@@ -1,0 +1,33 @@
+echo "build/" >> .gitignore
+echo "install/" >> .gitignore
+echo "log/" >> .gitignore
+
+# ROS 2 build artifacts
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+
+# VSCode
+.vscode/settings.json
+.vscode/c_cpp_properties.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gazebo
+*.log
+/tmp/
+
+# ROS logs
+~/.ros/
+
+
