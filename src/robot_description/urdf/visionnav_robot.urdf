@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+
+<robot name="visionnav_robot">
+
+  <!-- ================= BASE ================= -->
+  <link name="base_link">
+
+    <visual>
+      <geometry>
+        <box size="0.6 0.4 0.2"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="0.6 0.4 0.2"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="2.0"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0"
+               iyy="0.02" iyz="0.0"
+               izz="0.03"/>
+    </inertial>
+
+  </link>
+
+  <!-- ================= LEFT WHEEL ================= -->
+  <link name="left_wheel_link">
+
+    <visual>
+      <geometry>
+        <cylinder radius="0.07" length="0.03"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+
+  </link>
+
+  <!-- LEFT WHEEL JOINT -->
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel_link"/>
+
+    <origin xyz="0 0.2 -0.1" rpy="1.5708 0 0"/>
+
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- ================= RIGHT WHEEL ================= -->
+  <link name="right_wheel_link">
+
+    <visual>
+      <geometry>
+        <cylinder radius="0.07" length="0.03"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+
+  </link>
+
+  <!-- RIGHT WHEEL JOINT -->
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel_link"/>
+
+    <origin xyz="0 -0.2 -0.1" rpy="1.5708 0 0"/>
+
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- ================= CASTER WHEEL ================= -->
+  <link name="caster_link">
+
+    <visual>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+
+  </link>
+
+  <!-- CASTER JOINT -->
+  <joint name="caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_link"/>
+
+    <origin xyz="-0.25 0 -0.1"/>
+  </joint>
+
+
+
+
+
+  <link name="lidar_link">
+
+    <visual>
+      <geometry>
+        <cylinder radius="0.03" length="0.05"/>
+      </geometry>
+
+      <material name="red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+
+    <origin xyz="0 0 0.15"/>
+  </joint>
+  
+  
+  
+  
+    <link name="rgb_camera_link">
+
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.05"/>
+      </geometry>
+
+      <material name="green">
+        <color rgba="0 1 0 1"/>
+      </material>
+    </visual>
+
+  </link>
+
+  <joint name="rgb_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rgb_camera_link"/>
+
+    <origin xyz="0.3 0 0.05"/>
+  </joint>
+  
+  
+    <link name="depth_camera_link">
+
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.05"/>
+      </geometry>
+
+      <material name="yellow">
+        <color rgba="1 1 0 1"/>
+      </material>
+    </visual>
+
+  </link>
+
+  <joint name="depth_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="depth_camera_link"/>
+
+    <origin xyz="0.3 0 -0.05"/>
+  </joint>
+  
+  
+  
+  
+  
+  
+  
+  
+
+</robot>

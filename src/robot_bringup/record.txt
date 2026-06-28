@@ -1,0 +1,559 @@
+# VisionNav
+
+## Phase 1 – ROS 2 Foundations
+
+**Project:** VisionNav
+**Platform:** Ubuntu 22.04 LTS
+**ROS Version:** ROS 2 Humble
+**Language:** Python
+**Build System:** Colcon
+
+---
+
+# Objective of Phase 1
+
+The purpose of Phase 1 was **not** to build a robot.
+
+The goal was to understand the fundamental architecture of a ROS 2 project.
+
+At the end of this phase we should know how to:
+
+* Create a ROS 2 workspace
+* Create a Python package
+* Create ROS nodes
+* Exchange information using topics
+* Build packages using colcon
+* Launch multiple nodes simultaneously
+* Verify communication using ROS command-line tools
+
+This forms the foundation for every future ROS 2 project.
+
+---
+
+# What is ROS 2?
+
+ROS 2 (Robot Operating System 2) is not an operating system.
+
+It is a robotics middleware that allows many independent programs (called nodes) to communicate with each other.
+
+Instead of writing one huge program that controls an entire robot, ROS divides the robot into many smaller programs.
+
+Example:
+
+Camera Node
+↓
+
+Object Detection Node
+↓
+
+Navigation Node
+↓
+
+Motor Controller Node
+
+Each node performs one task and communicates using ROS topics, services, or actions.
+
+---
+
+# Workspace
+
+We created a workspace.
+
+Example:
+
+~/visionnav_ws
+
+A ROS workspace is the top-level directory containing all ROS packages.
+
+After building, it contains:
+
+visionnav_ws/
+├── src/
+├── build/
+├── install/
+└── log/
+
+---
+
+## src/
+
+The **src** folder stores every ROS package that belongs to the project.
+
+Nothing is built here.
+
+Only source code exists here.
+
+---
+
+## build/
+
+Created automatically after running:
+
+colcon build
+
+Purpose:
+
+Stores temporary compilation files.
+
+Think of it as the compiler's working directory.
+
+---
+
+## install/
+
+Also created automatically.
+
+Purpose:
+
+Contains the installed version of every package.
+
+When we execute:
+
+source install/setup.bash
+
+ROS loads packages from this directory.
+
+Without sourcing this directory ROS cannot find our package.
+
+---
+
+## log/
+
+Stores build logs.
+
+Useful when debugging compilation problems.
+
+---
+
+# Package
+
+Inside src we created our first ROS package.
+
+robot_bringup/
+
+A ROS package is the basic unit of software in ROS.
+
+A robot project usually contains many packages.
+
+Example future VisionNav packages:
+
+robot_bringup
+visionnav_description
+visionnav_gazebo
+visionnav_control
+visionnav_navigation
+visionnav_slam
+
+Each package has one responsibility.
+
+---
+
+# Why "robot_bringup"?
+
+The word **bringup** is commonly used in robotics.
+
+It means:
+
+"Start everything needed to make the robot operational."
+
+In large robots the bringup package launches:
+
+* sensors
+* controllers
+* cameras
+* localization
+* robot state publisher
+* navigation
+
+In Phase 1 our bringup package only launches two simple nodes.
+
+---
+
+# Package Files
+
+robot_bringup/
+
+Contains:
+
+package.xml
+setup.py
+setup.cfg
+resource/
+robot_bringup/
+launch/
+test/
+
+---
+
+## package.xml
+
+This file describes the package.
+
+It tells ROS:
+
+* package name
+* version
+* author
+* dependencies
+* license
+
+ROS reads this file before building.
+
+---
+
+## setup.py
+
+This is the Python installation script.
+
+It tells ROS:
+
+* which Python files are executable
+* which launch files should be installed
+* package metadata
+
+Without setup.py we cannot execute:
+
+ros2 run robot_bringup hello_robot
+
+---
+
+## setup.cfg
+
+Provides Python installation configuration.
+
+It works together with setup.py.
+
+Usually we rarely modify this file.
+
+---
+
+## resource/
+
+Contains a file named after the package.
+
+ROS uses this internally to discover installed packages.
+
+---
+
+## robot_bringup/
+
+This is the Python module.
+
+Every Python node lives inside this directory.
+
+It contains:
+
+**init**.py
+hello_robot.py
+status_listener.py
+
+---
+
+## **init**.py
+
+Marks the directory as a Python package.
+
+Without it Python cannot import files correctly.
+
+---
+
+# Publisher Node
+
+File:
+
+hello_robot.py
+
+Purpose:
+
+Creates a ROS node that publishes information.
+
+Node name:
+
+hello_robot
+
+Topic:
+
+/robot/status
+
+Message type:
+
+std_msgs/String
+
+Publishing frequency:
+
+1 Hz
+
+Published message:
+
+Hello from VisionNav
+
+---
+
+## What happens internally?
+
+Every second:
+
+1. Timer triggers.
+2. A String message is created.
+3. Message data is filled.
+4. Message is published.
+5. Any subscriber immediately receives it.
+
+---
+
+# Subscriber Node
+
+File:
+
+status_listener.py
+
+Purpose:
+
+Listens to the topic:
+
+/robot/status
+
+Whenever a new message arrives:
+
+The callback function executes automatically.
+
+Example output:
+
+Received: Hello from VisionNav
+
+---
+
+# Topic
+
+Topic:
+
+/robot/status
+
+A topic is like a radio channel.
+
+Anyone can broadcast.
+
+Anyone can listen.
+
+Publishers never know who is listening.
+
+Subscribers never know who is publishing.
+
+This loose coupling makes ROS scalable.
+
+---
+
+# Message Type
+
+We used:
+
+std_msgs/String
+
+A ROS message is a structured piece of data.
+
+This message contains only one field:
+
+data
+
+Example:
+
+data: "Hello from VisionNav"
+
+Later we will use more advanced message types:
+
+geometry_msgs/Twist
+
+sensor_msgs/LaserScan
+
+sensor_msgs/Image
+
+nav_msgs/Odometry
+
+geometry_msgs/PoseStamped
+
+---
+
+# Launch File
+
+Location:
+
+launch/robot.launch.py
+
+Purpose:
+
+Starts multiple nodes using one command.
+
+Instead of opening multiple terminals:
+
+ros2 run robot_bringup hello_robot
+
+ros2 run robot_bringup status_listener
+
+We simply execute:
+
+ros2 launch robot_bringup robot.launch.py
+
+ROS starts both nodes automatically.
+
+---
+
+# Build Process
+
+Command:
+
+colcon build
+
+Purpose:
+
+Build every package inside src.
+
+During the build ROS:
+
+* checks dependencies
+* installs Python scripts
+* copies launch files
+* creates install directory
+
+---
+
+# Sourcing
+
+Command:
+
+source install/setup.bash
+
+Purpose:
+
+Adds the newly built packages to the current terminal.
+
+Without sourcing:
+
+ros2 cannot find robot_bringup.
+
+---
+
+# Running Nodes
+
+Individual execution:
+
+ros2 run robot_bringup hello_robot
+
+ros2 run robot_bringup status_listener
+
+Launch execution:
+
+ros2 launch robot_bringup robot.launch.py
+
+---
+
+# Verification
+
+Commands used:
+
+ros2 topic list
+
+Lists every active topic.
+
+Expected:
+
+/robot/status
+
+ros2 topic echo /robot/status
+
+Displays every published message.
+
+Example:
+
+data: Hello from VisionNav
+
+---
+
+# ROS Concepts Learned
+
+During Phase 1 the following ROS concepts were introduced:
+
+Workspace
+
+A collection of ROS packages.
+
+Package
+
+A reusable software component.
+
+Node
+
+A running ROS program.
+
+Topic
+
+A communication channel.
+
+Publisher
+
+Sends messages to a topic.
+
+Subscriber
+
+Receives messages from a topic.
+
+Message
+
+The data exchanged between nodes.
+
+Launch File
+
+Starts multiple nodes.
+
+Colcon
+
+ROS build tool.
+
+Source
+
+Loads packages into the current shell.
+
+---
+
+# Final Folder Structure
+
+visionnav_ws/
+├── build/
+├── install/
+├── log/
+└── src/
+└── robot_bringup/
+├── launch/
+│   └── robot.launch.py
+├── package.xml
+├── setup.py
+├── setup.cfg
+├── resource/
+├── robot_bringup/
+│   ├── **init**.py
+│   ├── hello_robot.py
+│   └── status_listener.py
+└── test/
+
+---
+
+# Skills Gained
+
+At the end of Phase 1 I can:
+
+✓ Create a ROS 2 workspace.
+
+✓ Create a Python ROS package.
+
+✓ Build packages using colcon.
+
+✓ Write publisher nodes.
+
+✓ Write subscriber nodes.
+
+✓ Exchange messages using topics.
+
+✓ Launch multiple nodes together.
+
+✓ Inspect ROS topics from the terminal.
+
+This completes the ROS 2 Foundations phase and provides the base required for all later phases of the VisionNav project.
