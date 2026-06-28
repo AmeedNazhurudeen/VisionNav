@@ -557,3 +557,116 @@ At the end of Phase 1 I can:
 ✓ Inspect ROS topics from the terminal.
 
 This completes the ROS 2 Foundations phase and provides the base required for all later phases of the VisionNav project.
+VisionNav — Phase 2 (URDF + TF2) Documentation
+📌 Overview
+
+Phase 2 of VisionNav focuses on building the robot description layer using URDF and validating the robot structure using TF2 and RViz2. No simulation, SLAM, or navigation is included in this phase.
+
+The goal was to create a complete kinematic representation of a differential drive robot with sensor mounting frames and verify it visually in RViz.
+
+🧠 What was implemented
+✅ Robot Description Package
+
+Created a dedicated ROS 2 package:
+
+robot_description (ament_cmake)
+
+Responsible for:
+
+URDF model
+TF structure
+RViz configuration
+Launch system for visualization
+✅ URDF Robot Model
+
+A differential-drive robot was modeled with:
+
+Base structure:
+base_link (main robot body)
+Mobility:
+left_wheel_link
+right_wheel_link
+caster_link
+Sensors (TF-only frames):
+lidar_link (top center)
+rgb_camera_link (front)
+depth_camera_link (front lower)
+🧩 TF Tree Structure
+
+Final TF hierarchy:
+
+base_link
+ ├── left_wheel_link
+ ├── right_wheel_link
+ ├── caster_link
+ ├── lidar_link
+ ├── rgb_camera_link
+ └── depth_camera_link
+🚀 Launch System
+
+A unified launch file was created:
+
+File:
+
+launch/display.launch.py
+
+It launches:
+
+robot_state_publisher
+joint_state_publisher_gui
+rviz2
+🖥 RViz Configuration
+
+A minimal RViz setup was created to visualize:
+
+RobotModel
+TF frames
+
+Fixed Frame used:
+
+base_link
+📂 Project Structure (Phase 2)
+VisionNav/
+└── src/
+    └── robot_description/
+        ├── CMakeLists.txt
+        ├── package.xml
+        ├── urdf/
+        │   └── visionnav_robot.urdf
+        ├── launch/
+        │   └── display.launch.py
+        ├── rviz/
+        │   └── visionnav.rviz
+        └── meshes/
+🧪 Tools Used
+ROS 2 Humble
+URDF (robot modeling)
+TF2 (frame system)
+robot_state_publisher
+joint_state_publisher_gui
+RViz2
+colcon build system
+🎯 Achievements in Phase 2
+Built complete robot URDF from scratch
+Defined full TF tree structure
+Integrated robot_state_publisher
+Visualized robot in RViz2
+Verified coordinate frames using TF tools
+Established clean robot description architecture
+🧠 Key Learning Outcome
+URDF defines structure
+TF defines spatial relationships
+RViz is used for validation
+ROS robots are fundamentally frame trees, not models
+🚀 Phase Status
+Phase	Status
+Phase 1 (ROS 2 Basics)	Completed
+Phase 2 (URDF + TF)	Completed
+Phase 3 (Motion Control)	Upcoming
+📌 Next Step
+
+Phase 3 will introduce:
+
+Differential drive motion
+cmd_vel control
+real robot movement simulation architecture
