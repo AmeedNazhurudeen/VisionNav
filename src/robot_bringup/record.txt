@@ -670,3 +670,149 @@ Phase 3 will introduce:
 Differential drive motion
 cmd_vel control
 real robot movement simulation architecture
+
+---
+
+## Phase 3 – Gazebo Simulation
+
+📌 Overview
+
+Phase 3 of VisionNav moves the robot from static visualization (RViz) into physics simulation using Gazebo Classic. No SLAM or navigation is included in this phase.
+
+The goal was to spawn the robot inside a simulated environment, get all onboard sensors publishing real data on ROS 2 topics, and get differential-drive motion actually working under physics.
+
+🧠 What was implemented
+
+✅ Robot Simulation Package
+
+Created a dedicated ROS 2 package:
+
+robot_simulation (ament_cmake)
+
+Responsible for:
+
+Gazebo world file
+Robot spawn launch file
+Controller configuration (diff_drive.yaml)
+
+✅ Simulated World
+
+File:
+
+worlds/warehouse.world
+
+An enclosed 10m x 10m room built from 4 static walls, plus 2 box obstacles inside it. Previously this was just an open ground plane with floating boxes — now it is a proper bounded environment.
+
+✅ Gazebo Sensor Plugins
+
+Added to visionnav_robot.urdf, bridging Gazebo's internal sensor data to ROS 2 topics:
+
+lidar_link → /scan (sensor_msgs/LaserScan)
+base_link (imu_sensor) → /imu/data (sensor_msgs/Imu)
+rgb_camera_link → /camera/image_raw (sensor_msgs/Image)
+depth_camera_link → /depth/points (sensor_msgs/PointCloud2) + /depth/image_raw
+
+Each Gazebo sensor requires an explicit ROS plugin and topic remapping — without it, the sensor exists inside physics but is invisible to ROS 2.
+
+✅ Differential Drive Control
+
+Wired up gazebo_ros2_control so the existing ros2_control hardware interface in the URDF actually loads its controller configuration:
+
+controller_manager loads diff_drive_controller
+Config: config/diff_drive.yaml (wheel separation, wheel radius, odom frame)
+Command topic: /diff_drive_controller/cmd_vel_unstamped
+Odometry topic: /diff_drive_controller/odom
+
+Verified by publishing a Twist command directly and confirming odometry position changed accordingly, then by driving the robot manually with teleop_twist_keyboard (remapped to the controller's cmd_vel topic).
+
+✅ Caster Wheel Fix
+
+The robot originally had a single rear caster only, causing the front to lift under forward acceleration. Fixed by:
+
+Adding a second caster at the front (caster_front_link), mirroring the existing rear caster (caster_rear_link)
+Correcting caster mount height — the caster sphere radius (0.05m) differs from the drive wheel radius (0.07m), so both caster joints were lowered by 0.02m so the spheres actually reach the ground
+
+Verified using IMU orientation: before the height fix, the robot rested with a constant ~0.038 rad tilt (casters not touching ground); after the fix, resting orientation is level (quaternion ≈ identity) and stays level under hard forward acceleration.
+
+🧩 Launch Flow
+
+File:
+
+launch/spawn_world.launch.py
+
+Order of operations:
+
+1. Start Gazebo with the warehouse world
+2. Start robot_state_publisher with the robot_description (URDF text, with the controller config path resolved at launch time)
+3. Wait, then spawn the robot entity into Gazebo via spawn_entity.py
+4. Wait, then spawn the diff_drive_controller via controller_manager
+
+🖥 Verification Performed
+
+Commands used:
+
+ros2 topic list
+ros2 topic echo /scan --once
+ros2 topic echo /imu/data --once
+ros2 topic echo /camera/image_raw --no-arr --once
+ros2 topic echo /depth/points --no-arr --once
+ros2 topic hz /camera/image_raw
+ros2 topic hz /depth/points
+
+All 4 sensor topics confirmed publishing live, physically sane data (real LiDAR ranges, gravity in the IMU z-acceleration, correctly sized image/point-cloud buffers).
+
+📂 Project Structure (Phase 3)
+
+VisionNav/
+└── src/
+    ├── robot_description/
+    │   └── urdf/
+    │       └── visionnav_robot.urdf   (sensor + ros2_control + caster additions)
+    └── robot_simulation/
+        ├── CMakeLists.txt
+        ├── package.xml
+        ├── config/
+        │   └── diff_drive.yaml
+        ├── launch/
+        │   └── spawn_world.launch.py
+        └── worlds/
+            └── warehouse.world
+
+🧪 Tools Used
+
+ROS 2 Humble
+Gazebo Classic 11
+gazebo_ros_pkgs (gazebo_ros2_control, gazebo_ros_camera, gazebo_ros_ray_sensor, gazebo_ros_imu_sensor)
+diff_drive_controller / ros2_control
+teleop_twist_keyboard
+colcon build system
+
+🎯 Achievements in Phase 3
+
+Built an enclosed simulated warehouse world with obstacles
+Bridged all 4 onboard sensors from Gazebo into ROS 2 topics
+Diagnosed and fixed a nonexistent Gazebo plugin library reference (depth camera)
+Wired up and verified a working differential-drive controller in simulation
+Diagnosed and fixed a physical instability (front tipping) caused by a caster/wheel ground-contact mismatch
+Manually drove the robot around the simulated world using keyboard teleop
+
+🧠 Key Learning Outcome
+
+Gazebo and ROS 2 are separate systems — a ROS plugin is the only bridge between simulated sensor data and ROS topics
+A sensor with no plugin, or a plugin pointing at the wrong library, fails silently inside Gazebo, not in ROS
+ros2_control's Gazebo plugin needs an explicit path to its YAML config; xacro-style $(find pkg) substitution does not work here unless resolved before Gazebo receives the URDF
+Physical stability in simulation depends on every ground-contact geometry (wheels and casters) actually reaching the ground — small radius/height mismatches show up as real physics problems, not just cosmetic ones
+
+🚀 Phase Status
+Phase	Status
+Phase 1 (ROS 2 Basics)	Completed
+Phase 2 (URDF + TF)	Completed
+Phase 3 (Gazebo Simulation)	Completed
+Phase 4 (SLAM / Navigation)	Upcoming
+📌 Next Step
+
+Phase 4 will introduce:
+
+Mapping and localization (SLAM)
+Costmap-based navigation
+Autonomous path planning
