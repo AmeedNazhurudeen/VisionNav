@@ -170,12 +170,6 @@ visionnav_ws/
 
 ## Author
 
-Built by **Ameed Nazhurudeen** as a structured ROS 2 learning project — going from zero to a full autonomous perception-navigation pipeline, one week at a time.
+Built by **Ameed Nazhurudeen** - Robotics Engineer.
 
-> "Not another ROS 2 tutorial. A real robotics stack — built from scratch."
 
----
-
-## License
-
-MIT License — free to use, fork, and build on.
